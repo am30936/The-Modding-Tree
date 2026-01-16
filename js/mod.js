@@ -1,11 +1,11 @@
 let modInfo = {
-	name: "Testing",
+	name: "An Operation Tree",
 	author: "am30936",
 	pointsName: "points",
 	modFiles: ["layers.js", "tree.js"],
 
-	discordName: "",
-	discordLink: "",
+	discordName: "N/A",
+	discordLink: "N/A",
 	initialStartPoints: new Decimal (10), // Used for hard resets and new players
 	offlineLimit: 1,  // In hours
 }
@@ -13,13 +13,17 @@ let modInfo = {
 // Set your version in num and name
 let VERSION = {
 	num: "0.0",
-	name: "Literally nothing",
+	name: "Testing",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
-	<h3>v0.0</h3><br>
-		- Added things.<br>
-		- Added stuff.`
+	<br>
+	<h3>v0.1</h3><br>
+		- Added Addition:<br>
+			- 12 Upgrades<br>
+		- Added Subtraction:<br>
+			- 3 Milestones<br>
+		- Added 5 Achievements`
 
 let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
 
@@ -41,7 +45,28 @@ function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
 
-	let gain = new Decimal(1)
+	let gain = new Decimal(0)
+
+	// Addition
+	if (hasUpgrade('ap', 11)) gain = gain.add(upgradeEffect('ap', 11))
+	if (hasUpgrade('ap', 12)) gain = gain.add(upgradeEffect('ap', 12))
+	if (hasUpgrade('ap', 13)) gain = gain.add(upgradeEffect('ap', 13))
+	if (hasUpgrade('ap', 21)) gain = gain.add(upgradeEffect('ap', 21))
+	if (hasUpgrade('ap', 22)) gain = gain.add(upgradeEffect('ap', 22))
+	if (hasUpgrade('ap', 23)) gain = gain.add(upgradeEffect('ap', 23))
+	if (hasUpgrade('ap', 24)) gain = gain.add(upgradeEffect('ap', 24))
+	if (hasUpgrade('ap', 32)) gain = gain.add(upgradeEffect('ap', 32))
+	gain = gain.add(tmp.sp.effect.mul(-1))
+
+	if (gain.lte(1)) gain = new Decimal (1)
+
+	// Multiplication
+	if (hasAchievement('ach', 21)) gain = gain.mul(1.2)
+	//gain = gain.mul(50)
+
+	// Exponentiation
+
+
 	return gain
 }
 
@@ -51,6 +76,8 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
+	"<br>",
+	"Current Endgame: 3 Subtraction points",
 ]
 
 // Determines when the game "ends"
