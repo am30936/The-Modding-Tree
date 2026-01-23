@@ -12,11 +12,22 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
-	name: "Testing",
+	num: "0.2",
+	name: "An Operation Tree",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+	<br>
+	<h3>v0.2</h3><br>
+		- Added Multiplication:<br>
+			- 12 Upgrades<br>
+			- 6 Milestones<br>
+		- Added Division:<br>
+			- 4 Upgrades<br>
+			- 4 Challenges<br>
+		- Added 7 Achievements<br>
+		- Rebalanced content from v0.1
+	<br>
 	<br>
 	<h3>v0.1</h3><br>
 		- Added Addition:<br>
@@ -48,6 +59,8 @@ function getPointGen() {
 	let gain = new Decimal(0)
 
 	// Addition
+
+	// Upgrade effects
 	if (hasUpgrade('ap', 11)) gain = gain.add(upgradeEffect('ap', 11))
 	if (hasUpgrade('ap', 12)) gain = gain.add(upgradeEffect('ap', 12))
 	if (hasUpgrade('ap', 13)) gain = gain.add(upgradeEffect('ap', 13))
@@ -56,17 +69,29 @@ function getPointGen() {
 	if (hasUpgrade('ap', 23)) gain = gain.add(upgradeEffect('ap', 23))
 	if (hasUpgrade('ap', 24)) gain = gain.add(upgradeEffect('ap', 24))
 	if (hasUpgrade('ap', 32)) gain = gain.add(upgradeEffect('ap', 32))
+	// Layer effects
 	gain = gain.add(tmp.sp.effect.mul(-1))
-
-	if (gain.lte(1)) gain = new Decimal (1)
-
 	// Multiplication
+
+	// Achievemnt effects
 	if (hasAchievement('ach', 21)) gain = gain.mul(1.2)
-	//gain = gain.mul(50)
+	if (hasAchievement('ach', 33)) gain = gain.mul(2)
+	// Layer effects
+	if (player.mp.unlocked) gain = gain.mul(tmp.mp.effect)
+	if (player.dp.unlocked && player.dp.points.gte(1)) gain = gain.div(tmp.dp.effect)
+	// Upgrade effects
+	if (hasUpgrade('mp', 11)) gain = gain.mul(upgradeEffect('mp', 11))
+	if (hasUpgrade('mp', 12)) gain = gain.mul(upgradeEffect('mp', 12))
+	if (hasUpgrade('mp', 13)) gain = gain.mul(upgradeEffect('mp', 13))
+	// Challenge effects
+	if (inChallenge('dp', 11) || inChallenge('dp', 22)) gain = gain.div(20)
+	if (inChallenge('dp', 12) || inChallenge('dp', 22)) gain = gain.div(tmp.dp.challenges[12].effect)
 
+
+	//gain = gain.mul(100)
 	// Exponentiation
-
-
+		
+	if (gain.lt(1) && hasUpgrade('ap', 11)) gain = new Decimal (1)
 	return gain
 }
 
@@ -77,7 +102,7 @@ function addedPlayerData() { return {
 // Display extra things at the top of the page
 var displayThings = [
 	"<br>",
-	"Current Endgame: 3 Subtraction points",
+	"Current Endgame: 5000 Multiplication points",
 ]
 
 // Determines when the game "ends"
