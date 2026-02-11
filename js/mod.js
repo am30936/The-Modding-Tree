@@ -12,11 +12,37 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.2",
+	num: "0.3",
 	name: "An Operation Tree",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
+	<br>
+	<h3>v0.3</h3><br>
+		- Added Exponentiation:<br>
+			- 12 Upgrades<br>
+			- 15 Milestones<br>
+			- 1 Buyable<br>
+		- Added Roots:<br>
+			- 4 Upgrades<br>
+			- 5 Milestones<br>
+		- Added Logarithms:<br>
+			- 12 Upgrades<br>
+			- 1 Challenge<br>
+		- Added 16 Achievements<br>
+		- Added 1 Multiplication Buyable<br>
+		- Added 1 Multiplication Milestone<br>
+		- Added 1 Division Challenge<br>
+		- Altered Subtraction effect formula<br>
+		- Fixed Subtraction to actually need 4th Addition upgrade to prestige<br>
+		- Made Division challenges slightly harder<br>
+		- Increased 5th Multiplication upgrade cost: 6 -> 8<br>
+		- Altered 7th Multiplication upgrade formula<br>
+		- Fixed the 3rd Division upgrade desription<br>
+		- Changed 3 Achievement names<br>
+		- Included commas on numbers over 1,000<br>
+		- Fixed the Changelog for 0.2
+	<br>
 	<br>
 	<h3>v0.2</h3><br>
 		- Added Multiplication:<br>
@@ -26,6 +52,7 @@ let changelog = `<h1>Changelog:</h1><br>
 			- 4 Upgrades<br>
 			- 4 Challenges<br>
 		- Added 7 Achievements<br>
+		- Added 1 Subtraction Milestone<br>
 		- Rebalanced content from v0.1
 	<br>
 	<br>
@@ -70,28 +97,37 @@ function getPointGen() {
 	if (hasUpgrade('ap', 24)) gain = gain.add(upgradeEffect('ap', 24))
 	if (hasUpgrade('ap', 32)) gain = gain.add(upgradeEffect('ap', 32))
 	// Layer effects
-	gain = gain.add(tmp.sp.effect.mul(-1))
+	gain = gain.sub(tmp.sp.effect)
 	// Multiplication
 
 	// Achievemnt effects
 	if (hasAchievement('ach', 21)) gain = gain.mul(1.2)
 	if (hasAchievement('ach', 33)) gain = gain.mul(2)
+	if (hasAchievement('ach', 42)) gain = gain.mul(2)
 	// Layer effects
 	if (player.mp.unlocked) gain = gain.mul(tmp.mp.effect)
-	if (player.dp.unlocked && player.dp.points.gte(1)) gain = gain.div(tmp.dp.effect)
+	if (player.dp.unlocked && player.dp.total.gte(1)) gain = gain.div(tmp.dp.effect)
 	// Upgrade effects
 	if (hasUpgrade('mp', 11)) gain = gain.mul(upgradeEffect('mp', 11))
 	if (hasUpgrade('mp', 12)) gain = gain.mul(upgradeEffect('mp', 12))
 	if (hasUpgrade('mp', 13)) gain = gain.mul(upgradeEffect('mp', 13))
 	// Challenge effects
-	if (inChallenge('dp', 11) || inChallenge('dp', 22)) gain = gain.div(20)
+	if (inChallenge('dp', 11) || inChallenge('dp', 22)) gain = gain.div(50)
 	if (inChallenge('dp', 12) || inChallenge('dp', 22)) gain = gain.div(tmp.dp.challenges[12].effect)
 
 
-	//gain = gain.mul(100)
+	if (gain.lte(0)) gain = new Decimal(0)
+	if (gain.lte(1) && hasUpgrade('ap', 11)) gain = new Decimal (1)
 	// Exponentiation
+
+	if (hasUpgrade('ep', 12)) gain = gain.pow(upgradeEffect('ep', 12))
+	if (hasUpgrade('ep', 21)) gain = gain.pow(upgradeEffect('ep', 21))
+	if (player.rp.unlocked && gain.gt(1)) gain = gain.root(tmp.rp.effect)
 		
-	if (gain.lt(1) && hasUpgrade('ap', 11)) gain = new Decimal (1)
+	if (gain.lte(1) && hasUpgrade('ap', 11)) gain = new Decimal(1)
+	if (gain.gte(1) && inChallenge('lp', 11)) gain = gain.log(tmp.lp.challenges[11].effect)
+	if (gain.lte(1) && hasUpgrade('ap', 11)) gain = new Decimal(1)
+
 	return gain
 }
 
@@ -100,9 +136,9 @@ function addedPlayerData() { return {
 }}
 
 // Display extra things at the top of the page
-var displayThings = [
+let displayThings = [
 	"<br>",
-	"Current Endgame: 5000 Multiplication points",
+	"Current Endgame: 1,000,000 Logarithm points",
 ]
 
 // Determines when the game "ends"
