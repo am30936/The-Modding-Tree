@@ -12,13 +12,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.3",
+	num: "0.3.1",
 	name: "An Operation Tree",
 }
 
 let changelog = `<h1>Changelog:</h1><br>
 	<br>
-	<h3>v0.4</h3><br>
+	<h3>v0.3.1</h3><br>
 	- Added an effect to the 2nd, 3rd, and 7th Exponentiation milestones
 		- Decreased most row 1 and 2 Exponentiation upgrade costs
 		- Decreased Exponentiation milestones 3-6, 13-15 requirements
