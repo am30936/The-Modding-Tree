@@ -319,11 +319,11 @@ addLayer("sp", {
         return eff
     },
     effectDescription() {
-        return "which are reducing points by " +format(tmp.sp.effect)
+        return "which are reducing point gain by " + colorText("h2", "red", format(tmp.sp.effect))
     },
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(0.0075)
-        if (hasChallenge('dp', 11)) mult = mult.div(3)
+        if (hasChallenge('dp', 11)) mult = mult.div(tmp.dp.challenges[11].effect)
         return mult
     },
     directMult() {
@@ -368,7 +368,7 @@ addLayer("sp", {
             requirementDescription: "4 Subtraction points",
             effect() {
                 let base = player.sp.points
-                let power = new Decimal(0.25)
+                let power = new Decimal(0.4)
                 let eff = base.pow(power)
                 eff = eff.sub(1)
                 if (player.sp.points.gte(30)) {
@@ -420,7 +420,7 @@ addLayer("mp", {
         return eff
     },
     effectDescription() {
-        return "which are multiplying points by x" +format(tmp.mp.effect)
+        return "which are multiplying points by " + colorText("h2", "orange", format(tmp.mp.effect))
     },
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
@@ -822,10 +822,17 @@ addLayer("dp", {
         return eff
     },
     effectDescription() {
-        return "which are dividing points and AP by " +format(tmp.dp.effect)+ " (boosted by points)"
+        return "which are dividing points and AP by " + colorText("h2", "#0E4C92", format(tmp.dp.effect)) + " (boosted by points)"
     },
+
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
+        if (player.ep.unlocked && !false) {
+            let help = new Decimal(4)
+            if (hasAchievement('ach', 42)) help = help.div(1.5)
+            help = help.add(((player.dp.points.sub(3200)).pow(2)).mul(-0.000001))
+            if (help.gte(1)) mult = mult.mul(help)
+            }
         if (hasAchievement('ach', 41)) mult = mult.mul(2)
         if (hasAchievement('ach', 42)) mult = mult.mul(2)
         if (hasMilestone('ep', 6)) mult = mult.mul(2)
@@ -845,7 +852,7 @@ addLayer("dp", {
     },
     doReset(resettingLayer){
         let keep = [];
-        if (hasUpgrade('rp', 14) && (resettingLayer=='ep' || resettingLayer=='rp')) keep.push('challenges')
+        if (hasUpgrade('rp', 14) && (resettingLayer=='ep' || resettingLayer=='rp' || resettingLayer=='lp')) keep.push('challenges')
         if (hasMilestone('ep', 9) && (resettingLayer=='ep' || resettingLayer=='rp'))keep.push('upgrades')
         if (layers[resettingLayer].row > this.row) layerDataReset(this.layer, keep)
     },
@@ -974,7 +981,12 @@ addLayer("dp", {
                 return player.ap.points.gte(tmp.dp.challenges[11].requirement)
             },
             goalDescription() {return "Get "+format(tmp.dp.challenges[11].requirement)+" Addition points"},
-            rewardDescription() {return  "Divide Subtraction requirement by 3 " +"<br> Note: If the challenge doesn't complete when it should try reloading the page"},
+            effect() {
+                let eff = new Decimal(3)
+                if (hasMilestone('ep', 1)) eff = eff.pow(tmp.ep.milestones[1].effect)
+                return eff
+            },
+            rewardDescription() {return  "Divide Subtraction requirement by " + format(tmp.dp.challenges[11].effect)},
             onEnter() {
                 player.ap.upgrades = []
                 player.sp.milestones = []
@@ -1004,6 +1016,7 @@ addLayer("dp", {
                 let power = new Decimal(0.25)
                 let eff = base.pow(power)
                 eff = eff.div(1.5)
+                if (hasMilestone('ep', 1)) eff = eff.pow(tmp.ep.milestones[1].effect)
                 return eff
             },
             rewardDescription: "Divide Division nerf based on Multiplication points",
@@ -1085,7 +1098,8 @@ addLayer("dp", {
             goalDescription() {return "Get "+format(tmp.dp.challenges[31].requirement)+" Addition points"},
             rewardEffect() {
                 let base = player.rp.points.add(1)
-                let power = new Decimal(0.6)
+                base = base.mul(1.5)
+                let power = new Decimal(0.5)
                 let eff = base.pow(power)
                 return eff
             },
@@ -1125,8 +1139,9 @@ addLayer('ep', {
     },
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
-        if (hasAchievement('ach', 44)) mult = mult.mul(2)
+        if (hasAchievement('ach', 44)) mult = mult.mul(1.5)
         if (hasMilestone('mp', 6)) mult = mult.mul(tmp.mp.milestones[6].effect)
+        if (hasMilestone('ep', 6)) mult = mult.mul(1.4)
         return mult
     },
     directMult() {
@@ -1136,6 +1151,7 @@ addLayer('ep', {
     gainExp() { // Calculate the exponent on main currency from bonuses
         let eff = new Decimal(1)
         if (hasMilestone('ep', 5)) eff = eff.mul(tmp.ep.milestones[5].effect)
+        if (hasMilestone('ep', 6)) eff = eff.mul(1.1)
         return eff
     },
     row: 2, // Row the layer is in on the tree (0 is the first row)
@@ -1143,7 +1159,7 @@ addLayer('ep', {
         {key: "e", description: "e: Reset for Exponent points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
     ],
     softcap() {
-        let stp = new Decimal(1e13)
+        let stp = new Decimal(1e9)
         return stp
     },
     softcapPower() {
@@ -1198,6 +1214,7 @@ addLayer('ep', {
             title: "Squaring",
             effect() {
                 let eff = new Decimal(2)
+                if (hasMilestone('ep', 2)) eff = eff.mul(1.25)
                 if (hasMilestone('rp', 2)) eff = eff.mul(tmp.rp.milestones[2].effect)
                 return eff
             },
@@ -1213,7 +1230,7 @@ addLayer('ep', {
                 return eff
             },
             description() {return "Raise points, AP, and DP by " +format(upgradeEffect('ep', 12))},
-            cost: new Decimal(3),
+            cost: new Decimal(2),
             unlocked() {return hasUpgrade('ep', 11)}
         },
         13: {
@@ -1223,7 +1240,7 @@ addLayer('ep', {
                 return eff
             },
             description() {return "Raise 3rd Division and Multiplication upgrades by " +format(upgradeEffect('ep', 13))},
-            cost: new Decimal(6),
+            cost: new Decimal(4),
             unlocked() {return hasUpgrade('ep', 12)}
         },
         14: {
@@ -1241,7 +1258,7 @@ addLayer('ep', {
             },
             description() {return "MP gain is raised to a power based on points at a heavily reduced rate"},
             effectDisplay() {return "^" +format(upgradeEffect('ep', 14))},
-            cost: new Decimal(10),
+            cost: new Decimal(6),
             unlocked() {return hasUpgrade('ep', 13)}
         },
         21: {
@@ -1259,7 +1276,7 @@ addLayer('ep', {
             },
             description() {return "Points gain is raised to a power based on SP at a reduced rate"},
             effectDisplay() {return "^" +format(upgradeEffect('ep', 21))},
-            cost: new Decimal(15),
+            cost: new Decimal(10),
             unlocked() {return hasUpgrade('ep', 14)}
         },
         22: {
@@ -1283,7 +1300,7 @@ addLayer('ep', {
             },
             description() {return "AP gain is raised to a power based on DP at a reduced rate"},
             effectDisplay() {return "^" +format(upgradeEffect('ep', 22))},
-            cost: new Decimal(25),
+            cost: new Decimal(15),
             unlocked() {return hasUpgrade('ep', 21)}
         },
         23: {
@@ -1293,13 +1310,13 @@ addLayer('ep', {
                 return eff
             },
             description() {return "Raise the third Division challenge reward by " +format(upgradeEffect('ep', 23))},
-            cost: new Decimal(30),
+            cost: new Decimal(20),
             unlocked() {return hasUpgrade('ep', 22)}
         },
         24: {
             title: "Inverse Operation++++",
             description() {return "Unlock Roots, a new Multiplication milestone, and a Division challenge."},
-            cost: new Decimal(50),
+            cost: new Decimal(30),
             unlocked() {return hasUpgrade('ep', 23)}
         },
         31: {
@@ -1369,58 +1386,59 @@ addLayer('ep', {
         },
         1: {
             requirementDescription: "2 total Exponent points",
-            effectDescription: "Keep Subtraction milestones on Multiplication/Division resets",
+            effect() {return new Decimal(1.25)},
+            effectDescription() {return "Keep Subtraction milestones on Multiplication/Division resets. Raise the 1st and 2nd Division challenge rewards by "+ format(tmp.ep.milestones[1].effect)},
             done() {return player.ep.total.gte(2)},
             unlocked() {return hasMilestone('ep', 0)}
         },
         2: {
-            requirementDescription: "6 total Exponent points",
-            effectDescription: "Gain 10% of AP per second. Unlock a multiplication buyable (kept on reset)",
-            done() {return player.ep.total.gte(6)},
+            requirementDescription: "5 total Exponent points",
+            effectDescription: "Gain 10% of AP per second. Improve the first Exponentiation upgrade. Unlock a multiplication buyable (kept on reset)",
+            done() {return player.ep.total.gte(5)},
             unlocked() {return hasMilestone('ep', 1)}
         },
         3: {
-            requirementDescription: "15 total Exponent points",
+            requirementDescription: "10 total Exponent points",
             effect() {return new Decimal(2)},
             effectDescription() {return "Raise 'First Column Boost' effect to "+ format(tmp.ep.milestones[3].effect)},
-            done() {return player.ep.total.gte(15)},
+            done() {return player.ep.total.gte(10)},
             unlocked() {return hasMilestone('ep', 2)}
         },
         4: {
-            requirementDescription: "25 total Exponent points",
+            requirementDescription: "15 total Exponent points",
             effect() {return new Decimal(2)},
             effectDescription() {return "Raise 'Add by Points' and 'Multiply by 2' effects to "+ format(tmp.ep.milestones[4].effect)},
-            done() {return player.ep.total.gte(25)},
+            done() {return player.ep.total.gte(15)},
             unlocked() {return hasMilestone('ep', 3)}
         },
         5: {
-            requirementDescription: "40 total Exponent points",
+            requirementDescription: "30 total Exponent points",
             effect() {
-                let base = player.sp.points.sub(30)
-                let scstart = new Decimal(20)
+                let base = player.sp.points.sub(50).div(5)
+                let scstart = new Decimal(25)
                 if (base.gt(scstart)) {
                     base = base.sub(scstart)
                     base = base.pow(0.4)
                     base = base.add(scstart)
                 }
-                base = base.div(4)
+                base = base.add(1)
                 if (hasUpgrade('lp', 12)) base = base.mul(1.6)
-                let power = new Decimal(0.3)
+                let power = new Decimal(0.25)
                 if (hasUpgrade('lp', 12))power = power.add(0.1)
                  let eff = base.pow(power)
                 eff = eff.sub(1)
-                eff = eff.mul(1.5)
+                eff = eff.mul(1.25)
                 if (eff.lte(0)) eff = new Decimal(0)
                 eff = eff.add(1)
                 return eff
             },
-            effectDescription() {return "Raise EP gain based on SP starting at 30 at a reduced rate. The effect is reduced after 50 SP <br> Currently: ^"+ format(tmp.ep.milestones[5].effect)},
-            done() {return player.ep.total.gte(40)},
+            effectDescription() {return "Raise EP gain based on SP starting at 50 at a reduced rate. The effect is reduced after 75 SP <br> Currently: ^"+ format(tmp.ep.milestones[5].effect)},
+            done() {return player.ep.total.gte(30)},
             unlocked() {return hasMilestone('ep', 4)}
         },
         6: {
             requirementDescription: "100 total Exponent points",
-            effectDescription() {return "Improve DP gain formula"},
+            effectDescription() {return "Improve DP and EP gain formulas"},
             done() {return player.ep.total.gte(100)},
             unlocked() {return hasMilestone('ep', 5)}
         },
@@ -1483,19 +1501,19 @@ addLayer('ep', {
             unlocked() {return hasMilestone('ep', 10)}
         },
         12: {
-            requirementDescription: "1e11 total Exponent points",
+            requirementDescription: "5e10 total Exponent points",
             effectDescription() {return "'The Logarithm's nerf to MP is reduced"},
-            done() {return player.ep.total.gte(1e11)},
+            done() {return player.ep.total.gte(5e10)},
             unlocked() {return hasMilestone('ep', 11)}
         },
         13: {
-            requirementDescription: "1e12 total Exponent points",
+            requirementDescription: "5e11 total Exponent points",
             effectDescription() {return "While inside 'The Logarithm' 'Super boost 2' effect is cubed"},
-            done() {return player.ep.total.gte(1e12)},
+            done() {return player.ep.total.gte(5e11)},
             unlocked() {return hasMilestone('ep', 12)}
         },
         14: {
-            requirementDescription: "2e13 total Exponent points",
+            requirementDescription: "2e12 total Exponent points",
             effect() {
                 let base = player.mp.points.add(1)
                 let logbase = new Decimal(5)
@@ -1506,7 +1524,7 @@ addLayer('ep', {
                 return eff
             },
             effectDescription() {return "MP boost LP at a reduced rate.<br> Currently: x" + format(tmp.ep.milestones[14].effect)},
-            done() {return player.ep.total.gte(2e13)},
+            done() {return player.ep.total.gte(2e12)},
             unlocked() {return hasMilestone('ep', 13)}
         },
     },
@@ -1597,7 +1615,7 @@ addLayer('rp', {
         }
         return eff
     },
-    effectDescription() {return "which are rooting points, AP, MP, and DP gain by " +format(tmp.rp.effect) + "  (based on total) <br><br> Note: RP is hardcapped at 10"},
+    effectDescription() {return "which are rooting points, AP, MP, and DP gain by " +colorText("h2", "brown", format(tmp.rp.effect)) + "  (based on total) <br><br> Note: RP is hardcapped at 10"},
     gainMult() { // Calculate the multiplier for main currency from bonuses
         let mult = new Decimal(1)
         return mult
@@ -1668,10 +1686,13 @@ addLayer('rp', {
         2: {
             requirementDescription: "3 Root points",
             effect() {
-                let base = player.dp.points.add(1)
+                let base = player.dp.points.div(1000).add(1)
                 let eff = base.log(10).add(1)
                 let power = new Decimal(0.25)
                 eff = eff.pow(power)
+                eff = eff.sub(1)
+                eff = eff.div(1.5)
+                eff = eff.add(1)
                 return eff
             },
             effectDescription() {return "Improve Division passive generation to 5%. The first Exponentiation upgrade is boosted by DP. <br> Currently: x" +format(tmp.rp.milestones[2].effect)},
@@ -1798,6 +1819,8 @@ addLayer("lp", {
                 "blank",
                 "prestige-button",
                 "blank",
+                "infoboxes",
+                "blank",
                 "challenges"
             ]
         },
@@ -1840,13 +1863,14 @@ addLayer("lp", {
                 eff = eff.mul(1.25)
                 if (hasUpgrade('lp', 42)) eff = eff.mul(upgradeEffect('lp', 42))
                 if (hasMilestone('ep', 14)) eff = eff.mul(tmp.ep.milestones[14].effect)
+                if (hasUpgrade('lp', 24)) eff = eff.mul(upgradeEffect('lp', 24))
                 return eff
             },
             requirement() {
                 let req = new Decimal(1e30)
                 return req
             },
-            challengeDescription() {return "Point gain is set to log" +format(tmp.lp.challenges[11].effect)+ " of itself. All other currencies are square rooted. Disable passive AP and DP generation. Resets Addition-Division features on enter except buyables. <br> Exit early to set Logarithm points to "+format(tmp.lp.challenges[11].gain) + " based on points (cannot decrease)"},
+            challengeDescription() {return "Point gain is set to log" +format(tmp.lp.challenges[11].effect)+ " of itself. All other currencies are square rooted. Disable passive AP and DP generation. Resets Addition-Division features on enter except buyables and challenges. <br> Exit early to set Logarithm points to "+format(tmp.lp.challenges[11].gain) + " based on points (cannot decrease)"},
             canComplete() {return player.points.gte(tmp.lp.challenges[11].requirement)},
             goalDescription() {return "Get "+format(tmp.lp.challenges[11].requirement)+" points"},
             rewardDescription: "Unlock Tetration (NYI)",
@@ -1855,7 +1879,6 @@ addLayer("lp", {
                 player.ap.upgrades = []
                 player.sp.milestones = []
                 player.mp.milestones = []
-                player.dp.challenges = []
             },
             onExit() {
                 if (player.lp.points.lte(tmp.lp.challenges[11].gain)) player.lp.points = tmp.lp.challenges[11].gain
@@ -1974,7 +1997,7 @@ addLayer("lp", {
         44: {
             title: "Actualize Exponentiation",
             description() {return "'Power by EP 2' actually uses EP while inside 'The Logarithm' unless the normal effect is better"},
-            cost: new Decimal(10000),
+            cost: new Decimal(9000),
             unlocked() {return hasUpgrade('lp', 43)}
 
         },
@@ -2076,7 +2099,7 @@ addLayer("ach", {
         44: {
             name: "Where is my tree?",
             done() {return player.rp.unlocked},
-            tooltip: "Unlock Roots. Double EP gain"
+            tooltip: "Unlock Roots. Increase EP gain by 50%"
         },
         51: {
             name: "Still not inflation",
@@ -2139,9 +2162,9 @@ addLayer("ach", {
             tooltip: "Purchase the 4th Actualization upgrade"
         },
         81: {
-            name: "I'm a test",
+            name: "A fantastic layer",
             done() {return false},
-            tooltip: "hi"
+            tooltip: "Unlock Tetration"
         },
 
     }

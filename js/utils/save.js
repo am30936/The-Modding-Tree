@@ -322,3 +322,8 @@ window.onbeforeunload = () => {
         save();
     }
 };
+
+// Copied from Plague Tree
+function colorText(elem, color, text) {
+	return "<" + elem + " style='color:" + color + ";text-shadow:0px 0px 10px;'>" + text + "</" + elem + ">"
+};
