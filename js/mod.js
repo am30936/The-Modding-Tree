@@ -19,18 +19,18 @@ let VERSION = {
 let changelog = `<h1>Changelog:</h1><br>
 	<br>
 	<h3>v0.3.1</h3><br>
-	- Added an effect to the 2nd, 3rd, and 7th Exponentiation milestones
-		- Decreased most row 1 and 2 Exponentiation upgrade costs
-		- Decreased Exponentiation milestones 3-6, 13-15 requirements
-		- Decreased Actualization upgrade 4 cost
-		- Buffed 4th Subtraction milestone
-		- Altered the 5th Division challenge reward formula
-		- Implemented Logarithm upgrade 8's effect
-		- Division challenges now save inside The Logarithm; removed the note on Division challenge 1
-		- Nerfed Exponentiation milestone 6
-		- Nerfed Root milestone 3
-		- Nerfed Achievement 16 reward
-		- Colorized effects of layer points based on the layer
+	- Added an effect to the 2nd, 3rd, and 7th Exponentiation milestones<br>
+		- Decreased most row 1 and 2 Exponentiation upgrade costs<br>
+		- Decreased Exponentiation milestones 3-6, 13-15 requirements<br>
+		- Decreased Actualization upgrade 4 cost<br>
+		- Buffed 4th Subtraction milestone<br>
+		- Altered the 5th Division challenge reward formula<br>
+		- Implemented Logarithm upgrade 8's effect<br>
+		- Division challenges now save inside The Logarithm; removed the note on Division challenge 1<br>
+		- Nerfed Exponentiation milestone 6<br>
+		- Nerfed Root milestone 3<br>
+		- Nerfed Achievement 16 reward<br>
+		- Colorized effects of layer points based on the layer<br>
 	<br>
 	<br>
 	<h3>v0.3</h3><br>
